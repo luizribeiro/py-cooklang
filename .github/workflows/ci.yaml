@@ -1,0 +1,42 @@
+---
+name: CI
+
+# yamllint disable-line rule:truthy
+on: [push, pull_request]
+
+jobs:
+  setup-venv:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: syphar/restore-virtualenv@v1.2
+        id: venv-cache
+      - uses: abatilo/actions-poetry@v2.1.4
+        if: steps.setup-venv.outputs.cache-hit != 'true'
+      - name: Install Python dependencies
+        run: poetry install -vv
+        if: steps.setup-venv.outputs.cache-hit != 'true'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: setup-venv
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: syphar/restore-virtualenv@v1.2
+        id: venv-cache
+      - run: poetry run flake8
+      - run: poetry run black --check .
+      - run: poetry run pyre --noninteractive
+      - run: poetry run green
