@@ -58,6 +58,28 @@ class ParserTest(TestCase):
             ]
         )
 
+    def test_more_complex_ingredient_extraction(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            Put @green olives{5%units} in the #big bowl{}, together with @salt{2%grams} and @green onions{}
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal({})
+        expect(recipe.ingredients).to_equal(
+            [
+                Ingredient("green olives", 5, "units"),
+                Ingredient("salt", 2, "grams"),
+                Ingredient("green onions", 1, "units"),
+            ]
+        )
+        expect(recipe.steps).to_equal(
+            [
+                "Put green olives in the big bowl, together with salt and green onions",
+            ]
+        )
+
     def test_metadata_extraction(self) -> None:
         recipe = Recipe.parse(
             cleandoc(
