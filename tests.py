@@ -101,3 +101,26 @@ class ParserTest(TestCase):
         )
         expect(recipe.ingredients).to_equal([])
         expect(recipe.steps).to_equal([])
+
+    def test_stripping_out_comments(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            // comments can be added anywhere
+            >> time: 15 mins // even here!
+
+            // before paragraphs too
+            Hey this is a paragraph with no ingredients
+            // after them too
+            Another paragraph!
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal({"time": "15 mins"})
+        expect(recipe.ingredients).to_equal([])
+        expect(recipe.steps).to_equal(
+            [
+                "Hey this is a paragraph with no ingredients",
+                "Another paragraph!",
+            ]
+        )

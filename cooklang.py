@@ -36,7 +36,10 @@ class Recipe:
 
     @classmethod
     def parse(cls, raw: str) -> "Recipe":
-        raw_paragraphs = list(filter(None, raw.split("\n")))
+        raw_without_comments = re.sub(r"//[^\n]+", "", raw)
+        raw_paragraphs = list(
+            filter(None, map(str.strip, raw_without_comments.split("\n")))
+        )
 
         raw_steps = list(
             filter(
