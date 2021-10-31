@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-cooklang"
+name = "cooklang"
 version = "0.0.1"
 description = "Parser and utilities for handling recipes using the cooklang markup language."
 authors = ["Luiz Ribeiro <luizribeiro@gmail.com>"]
