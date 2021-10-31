@@ -53,4 +53,15 @@ class Recipe:
                 )
             )
         )
-        return Recipe(metadata={}, ingredients=ingredients, steps=raw_steps)
+        return Recipe(
+            metadata={},
+            ingredients=ingredients,
+            steps=[
+                re.sub(
+                    r"(?:@|#)([^{]+)({[^}]*})?",
+                    r"\1",
+                    raw_step,
+                )
+                for raw_step in raw_steps
+            ],
+        )

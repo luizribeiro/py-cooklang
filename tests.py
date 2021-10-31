@@ -32,8 +32,8 @@ class ParserTest(TestCase):
         )
         expect(recipe.steps).to_equal(
             [
-                "Place @stuff in the pan",
-                "Place @other things{} in the pan too",
+                "Place stuff in the pan",
+                "Place other things in the pan too",
             ]
         )
 
@@ -54,6 +54,6 @@ class ParserTest(TestCase):
         )
         expect(recipe.steps).to_equal(
             [
-                "Place @sugar{42%grams} in the pan along with @green onions{10%grams}",
+                "Place sugar in the pan along with green onions",
             ]
         )
