@@ -20,8 +20,6 @@ class Ingredient:
     def parse(cls, raw: str) -> "Ingredient":
         name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}]*)})?", raw)[0]
         matches = re.findall(r"([^%]+)%([\w]+)", raw_amount)
-        amount = 1
-        unit = "units"
         if matches:
             matches = matches[0]
             amount_as_str = matches[0]
@@ -34,7 +32,10 @@ class Ingredient:
             else:
                 amount = int(amount_as_str)
             unit = str(matches[1]) if matches[1] else "units"
-        return Ingredient(name, Quantity(amount, unit))
+            quantity = Quantity(amount, unit)
+        else:
+            quantity = None
+        return Ingredient(name, quantity)
 
 
 @dataclass
