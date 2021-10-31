@@ -82,7 +82,6 @@ class ParserTest(TestCase):
                 Ingredient("green olives", 5, "units"),
                 Ingredient("salt", 2, "grams"),
                 Ingredient("green onions", 1, "units"),
-                Ingredient("salt", 1, "units"),
                 Ingredient("pepper", 1, "units"),
                 Ingredient("sauté vegetables", 1, "units"),
             ]

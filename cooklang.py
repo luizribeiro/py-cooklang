@@ -72,6 +72,20 @@ class Recipe:
             )
         )
 
+        def _remove_duplicates(
+            ingredients: Sequence[Ingredient],
+        ) -> Sequence[Ingredient]:
+            new_list = []
+            added_ingredients = set()
+            for i in ingredients:
+                if i.name in added_ingredients:
+                    continue
+                new_list.append(i)
+                added_ingredients.add(i.name)
+            return new_list
+
+        ingredients = _remove_duplicates(ingredients)
+
         def _extract_metadata(raw_line: str) -> Optional[Tuple[str, str]]:
             res = re.search(r"^>> ?([^:]+): ?(.*)$", raw_line)
             if not res:
