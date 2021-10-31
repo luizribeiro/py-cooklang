@@ -14,7 +14,7 @@ class Ingredient:
     @classmethod
     def parse(cls, raw: str) -> "Ingredient":
         name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}]*)})?", raw)[0]
-        matches = re.findall(r"([^%]+)%([a-z]+)", raw_amount)
+        matches = re.findall(r"([^%]+)%([\w]+)", raw_amount)
         amount = 1
         unit = "units"
         if matches:
@@ -62,7 +62,7 @@ class Recipe:
                         map(
                             lambda s: Ingredient.parse(s),
                             re.findall(
-                                r"@(?:(?:[A-Za-z ]+?){[^}]*}|[A-Za-z]+)",
+                                r"@(?:(?:[\w ]+?){[^}]*}|[\w]+)",
                                 raw_step,
                             ),
                         )
@@ -96,7 +96,7 @@ class Recipe:
             ingredients=ingredients,
             steps=[
                 re.sub(
-                    r"(?:@|#)([A-Za-z ]+)({[^}]*})?",
+                    r"(?:@|#)([\w ]+)({[^}]*})?",
                     r"\1",
                     re.sub(
                         r"~\{([^}]*)}",

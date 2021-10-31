@@ -71,6 +71,8 @@ class ParserTest(TestCase):
             Put @green olives{5%units} in the #big bowl{}, together with @salt{2%grams} and @green onions{}
 
             Season with @salt and @pepper.
+
+            Get the @sauté vegetables{}.
         """  # noqa: E501
             )
         )
@@ -82,12 +84,14 @@ class ParserTest(TestCase):
                 Ingredient("green onions", 1, "units"),
                 Ingredient("salt", 1, "units"),
                 Ingredient("pepper", 1, "units"),
+                Ingredient("sauté vegetables", 1, "units"),
             ]
         )
         expect(recipe.steps).to_equal(
             [
                 "Put green olives in the big bowl, together with salt and green onions",  # noqa: E501
                 "Season with salt and pepper.",
+                "Get the sauté vegetables.",
             ]
         )
 
