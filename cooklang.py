@@ -90,7 +90,11 @@ class Recipe:
                 re.sub(
                     r"(?:@|#)([^{]+)({[^}]*})?",
                     r"\1",
-                    raw_step,
+                    re.sub(
+                        r"~\{([^}]*)}",
+                        r"\1",
+                        raw_step,
+                    ),
                 )
                 for raw_step in raw_steps
             ],
