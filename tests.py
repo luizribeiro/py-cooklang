@@ -42,7 +42,7 @@ class ParserTest(TestCase):
             cleandoc(
                 """
             Place @sugar{42%grams} in the pan along with @green onions{10%grams}
-        """
+        """  # noqa: E501
             )
         )
         expect(recipe.metadata).to_equal({})
@@ -63,7 +63,7 @@ class ParserTest(TestCase):
             cleandoc(
                 """
             Put @green olives{5%units} in the #big bowl{}, together with @salt{2%grams} and @green onions{}
-        """
+        """  # noqa: E501
             )
         )
         expect(recipe.metadata).to_equal({})
@@ -76,7 +76,7 @@ class ParserTest(TestCase):
         )
         expect(recipe.steps).to_equal(
             [
-                "Put green olives in the big bowl, together with salt and green onions",
+                "Put green olives in the big bowl, together with salt and green onions",  # noqa: E501
             ]
         )
 
