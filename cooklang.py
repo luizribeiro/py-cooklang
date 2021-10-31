@@ -10,6 +10,33 @@ class Quantity:
     amount: Union[int, float, Fraction]
     unit: str
 
+    @classmethod
+    def add_optional(
+        cls, a: Optional["Quantity"], b: Optional["Quantity"]
+    ) -> Optional["Quantity"]:
+        if a and b:
+            return a + b
+        elif a or b:
+            return a or b
+        return None
+
+    def __add__(self, other: "Quantity") -> "Quantity":
+        if self.unit != other.unit:
+            raise ValueError(f"Cannot add unit {self.unit} to {other.unit}")
+        if type(self.amount) != type(other.amount):  # noqa: E721
+            raise ValueError(
+                "Cannot add quantities with types "
+                + f"{type(self.amount)} and {type(other.amount)}"
+            )
+        # pyre-ignore[6]: pyre doesn't refine types on the comparison above
+        new_amount = self.amount + other.amount
+        if isinstance(new_amount, float):
+            new_amount = round(new_amount, 1)
+        return Quantity(
+            amount=new_amount,
+            unit=self.unit,
+        )
+
 
 @dataclass
 class Ingredient:
@@ -36,6 +63,16 @@ class Ingredient:
         else:
             quantity = None
         return Ingredient(name, quantity)
+
+    def __add__(self, other: "Ingredient") -> "Ingredient":
+        if self.name != other.name:
+            raise ValueError(
+                f"Cannot add ingredient {self.name} with {other.name}",
+            )
+        return Ingredient(
+            name=self.name,
+            quantity=Quantity.add_optional(self.quantity, other.quantity),
+        )
 
 
 @dataclass
@@ -77,14 +114,15 @@ class Recipe:
         def _remove_duplicates(
             ingredients: Sequence[Ingredient],
         ) -> Sequence[Ingredient]:
-            new_list = []
+            name_to_ingredient = {}
             added_ingredients = set()
             for i in ingredients:
-                if i.name in added_ingredients:
-                    continue
-                new_list.append(i)
+                if i.name not in name_to_ingredient.keys():
+                    name_to_ingredient[i.name] = i
+                else:
+                    name_to_ingredient[i.name] += i
                 added_ingredients.add(i.name)
-            return new_list
+            return list(name_to_ingredient.values())
 
         ingredients = _remove_duplicates(ingredients)
 

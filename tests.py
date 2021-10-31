@@ -64,6 +64,29 @@ class ParserTest(TestCase):
             ]
         )
 
+    def test_adding_up_ingredient_quantities(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            Add @salt{0.1%grams} and @salt{0.2%grams}. Add more @salt to taste
+
+            Add @amaranth{1/2%cup} and @amaranth{1/4%cup}.
+
+            Add @butter{1%cup} and @butter{2%cup}.
+
+            Pour some @olive oil{}
+        """  # noqa: E501
+            )
+        )
+        expect(recipe.ingredients).to_equal(
+            [
+                Ingredient("salt", Quantity(0.3, "grams")),
+                Ingredient("amaranth", Quantity(Fraction(3, 4), "cup")),
+                Ingredient("butter", Quantity(3, "cup")),
+                Ingredient("olive oil"),
+            ]
+        )
+
     def test_more_complex_ingredient_extraction(self) -> None:
         recipe = Recipe.parse(
             cleandoc(
