@@ -1,13 +1,14 @@
 import itertools
 import re
 from dataclasses import dataclass
+from fractions import Fraction
 from typing import Mapping, Optional, Sequence, Tuple, Union
 
 
 @dataclass
 class Ingredient:
     name: str
-    amount: Union[int, float]
+    amount: Union[int, float, Fraction]
     unit: str
 
     @classmethod
@@ -18,8 +19,15 @@ class Ingredient:
         unit = "units"
         if matches:
             matches = matches[0]
-            # TODO support floats
-            amount = int(matches[0]) if matches[0] else 1
+            amount_as_str = matches[0]
+            if not amount_as_str:
+                amount = 1
+            if "." in amount_as_str:
+                amount = float(amount_as_str)
+            elif "/" in amount_as_str:
+                amount = Fraction(amount_as_str)
+            else:
+                amount = int(amount_as_str)
             unit = str(matches[1]) if matches[1] else "units"
         return Ingredient(
             name=name,

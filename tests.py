@@ -1,3 +1,4 @@
+from fractions import Fraction
 from inspect import cleandoc
 from unittest import TestCase
 
@@ -42,6 +43,8 @@ class ParserTest(TestCase):
             cleandoc(
                 """
             Place @sugar{42%grams} in the pan along with @green onions{10%grams}
+
+            Use @salt{0.5%grams} and @amaranth{1/2%cup}
         """  # noqa: E501
             )
         )
@@ -50,11 +53,14 @@ class ParserTest(TestCase):
             [
                 Ingredient("sugar", 42, "grams"),
                 Ingredient("green onions", 10, "grams"),
+                Ingredient("salt", 0.5, "grams"),
+                Ingredient("amaranth", Fraction(1, 2), "cup"),
             ]
         )
         expect(recipe.steps).to_equal(
             [
                 "Place sugar in the pan along with green onions",
+                "Use salt and amaranth",
             ]
         )
 
