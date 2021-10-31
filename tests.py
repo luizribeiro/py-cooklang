@@ -75,6 +75,8 @@ class ParserTest(TestCase):
             Add @butter{1%cup} and @butter{2%cup}.
 
             Pour some @olive oil{}
+
+            Add @garlic{1}
         """  # noqa: E501
             )
         )
@@ -84,6 +86,7 @@ class ParserTest(TestCase):
                 Ingredient("amaranth", Quantity(Fraction(3, 4), "cup")),
                 Ingredient("butter", Quantity(3, "cup")),
                 Ingredient("olive oil"),
+                Ingredient("garlic", Quantity(1)),
             ]
         )
 

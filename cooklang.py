@@ -8,7 +8,7 @@ from typing import Mapping, Optional, Sequence, Tuple, Union
 @dataclass
 class Quantity:
     amount: Union[int, float, Fraction]
-    unit: str
+    unit: Optional[str] = None
 
     @classmethod
     def add_optional(
@@ -45,24 +45,28 @@ class Ingredient:
 
     @classmethod
     def parse(cls, raw: str) -> "Ingredient":
-        name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}]*)})?", raw)[0]
-        matches = re.findall(r"([^%]+)%([\w]+)", raw_amount)
-        if matches:
-            matches = matches[0]
-            amount_as_str = matches[0]
+        def _get_quantity(
+            matches: Sequence[Sequence[str]],
+        ) -> Optional[Quantity]:
+            if not matches:
+                return None
+
+            match = matches[0]
+            amount_as_str = match[0]
             if not amount_as_str:
-                amount = 1
+                return None
             if "." in amount_as_str:
                 amount = float(amount_as_str)
             elif "/" in amount_as_str:
                 amount = Fraction(amount_as_str)
             else:
                 amount = int(amount_as_str)
-            unit = str(matches[1]) if matches[1] else "units"
-            quantity = Quantity(amount, unit)
-        else:
-            quantity = None
-        return Ingredient(name, quantity)
+            unit = str(match[1]) if match[1] else None
+            return Quantity(amount, unit)
+
+        name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}]*)})?", raw)[0]
+        matches = re.findall(r"([^%}]+)%?([\w]+)?", raw_amount)
+        return Ingredient(name, _get_quantity(matches))
 
     def __add__(self, other: "Ingredient") -> "Ingredient":
         if self.name != other.name:
