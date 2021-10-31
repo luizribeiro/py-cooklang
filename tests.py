@@ -57,3 +57,25 @@ class ParserTest(TestCase):
                 "Place sugar in the pan along with green onions",
             ]
         )
+
+    def test_metadata_extraction(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            >> time: 15 mins
+            >> course: lunch, dinner
+            >> servings: 4|2|1
+            >>  weird spacing  :   every where
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal(
+            {
+                "time": "15 mins",
+                "course": "lunch, dinner",
+                "servings": "4|2|1",
+                "weird spacing": "every where",
+            }
+        )
+        expect(recipe.ingredients).to_equal([])
+        expect(recipe.steps).to_equal([])

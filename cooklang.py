@@ -1,7 +1,7 @@
 import itertools
 import re
 from dataclasses import dataclass
-from typing import Mapping, Sequence, Union
+from typing import Mapping, Optional, Sequence, Tuple, Union
 
 
 @dataclass
@@ -36,7 +36,14 @@ class Recipe:
 
     @classmethod
     def parse(cls, raw: str) -> "Recipe":
-        raw_steps = list(filter(None, raw.split("\n\n")))
+        raw_paragraphs = list(filter(None, raw.split("\n")))
+
+        raw_steps = list(
+            filter(
+                lambda x: not x.startswith(">>"),
+                raw_paragraphs,
+            )
+        )
         ingredients = list(
             itertools.chain(
                 *map(
@@ -53,8 +60,28 @@ class Recipe:
                 )
             )
         )
+
+        def _extract_metadata(raw_line: str) -> Optional[Tuple[str, str]]:
+            res = re.search(r"^>> ?([^:]+): ?(.*)$", raw_line)
+            if not res:
+                return None
+            return (res.group(1).strip(), res.group(2).strip())
+
+        raw_metadata = list(
+            filter(
+                lambda x: x.startswith(">>"),
+                raw_paragraphs,
+            )
+        )
+        metadata = dict(
+            filter(
+                None,
+                (_extract_metadata(raw_line) for raw_line in raw_metadata),
+            )
+        )
+
         return Recipe(
-            metadata={},
+            metadata=metadata,
             ingredients=ingredients,
             steps=[
                 re.sub(
