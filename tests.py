@@ -69,6 +69,8 @@ class ParserTest(TestCase):
             cleandoc(
                 """
             Put @green olives{5%units} in the #big bowl{}, together with @salt{2%grams} and @green onions{}
+
+            Season with @salt and @pepper.
         """  # noqa: E501
             )
         )
@@ -78,11 +80,14 @@ class ParserTest(TestCase):
                 Ingredient("green olives", 5, "units"),
                 Ingredient("salt", 2, "grams"),
                 Ingredient("green onions", 1, "units"),
+                Ingredient("salt", 1, "units"),
+                Ingredient("pepper", 1, "units"),
             ]
         )
         expect(recipe.steps).to_equal(
             [
                 "Put green olives in the big bowl, together with salt and green onions",  # noqa: E501
+                "Season with salt and pepper.",
             ]
         )
 
