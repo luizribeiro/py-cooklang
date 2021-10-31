@@ -54,7 +54,7 @@ class Recipe:
                         map(
                             lambda s: Ingredient.parse(s),
                             re.findall(
-                                r"@(?:(?:[^{]+?){[^}]*}|[A-Za-z]+)",
+                                r"@(?:(?:[A-Za-z ]+?){[^}]*}|[A-Za-z]+)",
                                 raw_step,
                             ),
                         )

@@ -129,14 +129,14 @@ class ParserTest(TestCase):
         recipe = Recipe.parse(
             cleandoc(
                 """
-            Boil for ~{10 minutes}
+            Cook the @pasta for ~{10 minutes}
         """
             )
         )
         expect(recipe.metadata).to_equal({})
-        expect(recipe.ingredients).to_equal([])
+        expect(recipe.ingredients).to_equal([Ingredient("pasta", 1, "units")])
         expect(recipe.steps).to_equal(
             [
-                "Boil for 10 minutes",
+                "Cook the pasta for 10 minutes",
             ]
         )
