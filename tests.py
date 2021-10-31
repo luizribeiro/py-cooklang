@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from pyexpect import expect
 
-from cooklang import Ingredient, Recipe
+from cooklang import Ingredient, Quantity, Recipe
 
 
 class ParserTest(TestCase):
@@ -27,8 +27,8 @@ class ParserTest(TestCase):
         expect(recipe.metadata).to_equal({})
         expect(recipe.ingredients).to_equal(
             [
-                Ingredient("stuff", 1, "units"),
-                Ingredient("other things", 1, "units"),
+                Ingredient("stuff", Quantity(1, "units")),
+                Ingredient("other things", Quantity(1, "units")),
             ]
         )
         expect(recipe.steps).to_equal(
@@ -51,10 +51,10 @@ class ParserTest(TestCase):
         expect(recipe.metadata).to_equal({})
         expect(recipe.ingredients).to_equal(
             [
-                Ingredient("sugar", 42, "grams"),
-                Ingredient("green onions", 10, "grams"),
-                Ingredient("salt", 0.5, "grams"),
-                Ingredient("amaranth", Fraction(1, 2), "cup"),
+                Ingredient("sugar", Quantity(42, "grams")),
+                Ingredient("green onions", Quantity(10, "grams")),
+                Ingredient("salt", Quantity(0.5, "grams")),
+                Ingredient("amaranth", Quantity(Fraction(1, 2), "cup")),
             ]
         )
         expect(recipe.steps).to_equal(
@@ -79,11 +79,11 @@ class ParserTest(TestCase):
         expect(recipe.metadata).to_equal({})
         expect(recipe.ingredients).to_equal(
             [
-                Ingredient("green olives", 5, "units"),
-                Ingredient("salt", 2, "grams"),
-                Ingredient("green onions", 1, "units"),
-                Ingredient("pepper", 1, "units"),
-                Ingredient("sauté vegetables", 1, "units"),
+                Ingredient("green olives", Quantity(5, "units")),
+                Ingredient("salt", Quantity(2, "grams")),
+                Ingredient("green onions", Quantity(1, "units")),
+                Ingredient("pepper", Quantity(1, "units")),
+                Ingredient("sauté vegetables", Quantity(1, "units")),
             ]
         )
         expect(recipe.steps).to_equal(
@@ -148,7 +148,11 @@ class ParserTest(TestCase):
             )
         )
         expect(recipe.metadata).to_equal({})
-        expect(recipe.ingredients).to_equal([Ingredient("pasta", 1, "units")])
+        expect(recipe.ingredients).to_equal(
+            [
+                Ingredient("pasta", Quantity(1, "units")),
+            ]
+        )
         expect(recipe.steps).to_equal(
             [
                 "Cook the pasta for 10 minutes",

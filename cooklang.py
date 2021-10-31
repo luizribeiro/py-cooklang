@@ -6,10 +6,15 @@ from typing import Mapping, Optional, Sequence, Tuple, Union
 
 
 @dataclass
-class Ingredient:
-    name: str
+class Quantity:
     amount: Union[int, float, Fraction]
     unit: str
+
+
+@dataclass
+class Ingredient:
+    name: str
+    quantity: Optional[Quantity] = None
 
     @classmethod
     def parse(cls, raw: str) -> "Ingredient":
@@ -29,11 +34,7 @@ class Ingredient:
             else:
                 amount = int(amount_as_str)
             unit = str(matches[1]) if matches[1] else "units"
-        return Ingredient(
-            name=name,
-            amount=amount,
-            unit=unit,
-        )
+        return Ingredient(name, Quantity(amount, unit))
 
 
 @dataclass
