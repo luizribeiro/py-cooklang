@@ -12,11 +12,12 @@ class Ingredient:
 
     @classmethod
     def parse(cls, raw: str) -> "Ingredient":
-        name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}])})?", raw)[0]
+        name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}]*)})?", raw)[0]
         matches = re.findall(r"([^%]+)%([a-z]+)", raw_amount)
         amount = 1
         unit = "units"
         if matches:
+            matches = matches[0]
             # TODO support floats
             amount = int(matches[0]) if matches[0] else 1
             unit = str(matches[1]) if matches[1] else "units"

@@ -13,7 +13,7 @@ class ParserTest(TestCase):
         expect(recipe.ingredients).to_equal([])
         expect(recipe.steps).to_equal([])
 
-    def test_basic_recipe(self) -> None:
+    def test_ingredient_name_extraction(self) -> None:
         recipe = Recipe.parse(
             cleandoc(
                 """
@@ -34,5 +34,26 @@ class ParserTest(TestCase):
             [
                 "Place @stuff in the pan",
                 "Place @other things{} in the pan too",
+            ]
+        )
+
+    def test_ingredient_quantity_extraction(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            Place @sugar{42%grams} in the pan along with @green onions{10%grams}
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal({})
+        expect(recipe.ingredients).to_equal(
+            [
+                Ingredient("sugar", 42, "grams"),
+                Ingredient("green onions", 10, "grams"),
+            ]
+        )
+        expect(recipe.steps).to_equal(
+            [
+                "Place @sugar{42%grams} in the pan along with @green onions{10%grams}",
             ]
         )
