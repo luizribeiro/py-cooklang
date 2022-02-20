@@ -191,6 +191,25 @@ class ParserTest(unittest.TestCase):
             ]
         )
 
+    def test_skip_invalid_syntax(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            # For instance, a markdown header
+
+            @ Or something else here
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal({})
+        expect(recipe.ingredients).to_equal([])
+        expect(recipe.steps).to_equal(
+            [
+                "# For instance, a markdown header",
+                "@ Or something else here",
+            ]
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

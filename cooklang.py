@@ -154,7 +154,7 @@ class Recipe:
             ingredients=ingredients,
             steps=[
                 re.sub(
-                    r"(?:@|#)([\w ]+)({[^}]*})?",
+                    r"(?:@|#)(\w[\w ]*)({[^}]*})?",
                     r"\1",
                     re.sub(
                         r"~\{([^}]*)}",
