@@ -1,13 +1,13 @@
 from fractions import Fraction
 from inspect import cleandoc
-from unittest import TestCase
+import unittest
 
 from pyexpect import expect
 
 from cooklang import Ingredient, Quantity, Recipe
 
 
-class ParserTest(TestCase):
+class ParserTest(unittest.TestCase):
     def test_empty_file(self) -> None:
         recipe = Recipe.parse("")
         expect(recipe.metadata).to_equal({})
@@ -146,13 +146,17 @@ class ParserTest(TestCase):
         recipe = Recipe.parse(
             cleandoc(
                 """
-            // comments can be added anywhere
-            >> time: 15 mins // even here!
+            -- comments can be added anywhere
+            >> time: 15 mins -- even here!
 
-            // before paragraphs too
+            -- before paragraphs too
             Hey this is a paragraph with no ingredients
-            // after them too
+            -- after them too
             Another paragraph!
+
+            [- block comment here -]
+            and [- in text somewhere -]
+            as well
         """
             )
         )
@@ -162,6 +166,8 @@ class ParserTest(TestCase):
             [
                 "Hey this is a paragraph with no ingredients",
                 "Another paragraph!",
+                "and",
+                "as well",
             ]
         )
 
@@ -184,3 +190,7 @@ class ParserTest(TestCase):
                 "Cook the pasta for 10 minutes",
             ]
         )
+
+
+if __name__ == '__main__':
+    unittest.main()
