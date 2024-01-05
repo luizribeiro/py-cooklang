@@ -10,7 +10,7 @@ python = "^3.9"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
-flake8 = "^4.0.1"
+flake8 = "^7.0.0"
 green = "^3.3.0"
 pyexpect = "^1.0.21"
 pyre-check = "^0.9.6"
