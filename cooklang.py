@@ -39,31 +39,34 @@ class Quantity:
 
 
 @dataclass
+class Timer:
+    name: str
+    quantity: Optional[Quantity] = None
+
+    @classmethod
+    def parse(cls, raw: str) -> "Timer":
+        name, raw_amount = re.findall(r"^~([^{]*)(?:{([^}]*)})?", raw)[0]
+        matches = re.findall(r"([^%}]+)%?([\w]+)?", raw_amount)
+        return Timer(name, _get_quantity(matches))
+
+    def __add__(self, other: "Timer") -> "Timer":
+        if self.name != other.name:
+            raise ValueError(
+                f"Cannot add timer {self.name} with {other.name}",
+            )
+        return Timer(
+            name=self.name,
+            quantity=Quantity.add_optional(self.quantity, other.quantity),
+        )
+
+
+@dataclass
 class Ingredient:
     name: str
     quantity: Optional[Quantity] = None
 
     @classmethod
     def parse(cls, raw: str) -> "Ingredient":
-        def _get_quantity(
-            matches: Sequence[Sequence[str]],
-        ) -> Optional[Quantity]:
-            if not matches:
-                return None
-
-            match = matches[0]
-            amount_as_str = match[0]
-            if not amount_as_str:
-                return None
-            if "." in amount_as_str:
-                amount = float(amount_as_str)
-            elif "/" in amount_as_str:
-                amount = Fraction(amount_as_str)
-            else:
-                amount = int(amount_as_str)
-            unit = str(match[1]) if match[1] else None
-            return Quantity(amount, unit)
-
         name, raw_amount = re.findall(r"^@([^{]+)(?:{([^}]*)})?", raw)[0]
         matches = re.findall(r"([^%}]+)%?([\w]+)?", raw_amount)
         return Ingredient(name, _get_quantity(matches))
@@ -84,6 +87,8 @@ class Recipe:
     metadata: Mapping[str, str]
     ingredients: Sequence[Ingredient]
     steps: Sequence[str]
+    cookware: Sequence[str]
+    timers: Sequence[Timer]
 
     @classmethod
     def parse(cls, raw: str) -> "Recipe":
@@ -106,6 +111,38 @@ class Recipe:
                             lambda s: Ingredient.parse(s),
                             re.findall(
                                 r"@(?:(?:[\w ]+?){[^}]*}|[\w]+)",
+                                raw_step,
+                            ),
+                        )
+                    ),
+                    raw_steps,
+                )
+            )
+        )
+        cookware = list(
+            itertools.chain(
+                *map(
+                    lambda raw_step: list(
+                        map(
+                            lambda s: s[1] or s[0],
+                            re.findall(
+                                r"#(([\w ]+?){[^}]*}|[\w]+)",
+                                raw_step,
+                            ),
+                        )
+                    ),
+                    raw_steps,
+                )
+            )
+        )
+        timers = list(
+            itertools.chain(
+                *map(
+                    lambda raw_step: list(
+                        map(
+                            lambda s: Timer.parse(s),
+                            re.findall(
+                                r"~(?:(?:[\w ]*?){[^}]*}|[\w]+)",
                                 raw_step,
                             ),
                         )
@@ -152,16 +189,36 @@ class Recipe:
         return Recipe(
             metadata=metadata,
             ingredients=ingredients,
+            cookware=cookware,
+            timers=timers,
             steps=[
                 re.sub(
                     r"(?:@|#)(\w[\w ]*)({[^}]*})?",
                     r"\1",
                     re.sub(
-                        r"~\{([^}]*)}",
-                        r"\1",
+                        r"~[\w ]*\{([^}%]*)(?:%([^}]+))?}",
+                        r"\1 \2",
                         raw_step,
                     ),
                 )
                 for raw_step in raw_steps
             ],
         )
+
+
+def _get_quantity(matches: Sequence[Sequence[str]]) -> Optional[Quantity]:
+    if not matches:
+        return None
+
+    match = matches[0]
+    amount_as_str = match[0]
+    if not amount_as_str:
+        return None
+    if "." in amount_as_str:
+        amount = float(amount_as_str)
+    elif "/" in amount_as_str:
+        amount = Fraction(amount_as_str)
+    else:
+        amount = int(amount_as_str)
+    unit = str(match[1]) if match[1] else None
+    return Quantity(amount, unit)

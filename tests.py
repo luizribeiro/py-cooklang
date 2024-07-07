@@ -4,7 +4,7 @@ import unittest
 
 from pyexpect import expect
 
-from cooklang import Ingredient, Quantity, Recipe
+from cooklang import Ingredient, Quantity, Recipe, Timer
 
 
 class ParserTest(unittest.TestCase):
@@ -175,7 +175,7 @@ class ParserTest(unittest.TestCase):
         recipe = Recipe.parse(
             cleandoc(
                 """
-            Cook the @pasta for ~{10 minutes}
+            Cook the @pasta for ~{10%minutes}
         """
             )
         )
@@ -198,6 +198,8 @@ class ParserTest(unittest.TestCase):
             # For instance, a markdown header
 
             @ Or something else here
+
+            ~ Or this
         """
             )
         )
@@ -207,6 +209,58 @@ class ParserTest(unittest.TestCase):
             [
                 "# For instance, a markdown header",
                 "@ Or something else here",
+                "~ Or this",
+            ]
+        )
+
+    def test_cookware_extraction(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            Place stuff in the #pan
+
+            Place other things in the #large bowl{}
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal({})
+        expect(recipe.cookware).to_equal(
+            [
+                "pan",
+                "large bowl",
+            ]
+        )
+        expect(recipe.ingredients).to_equal([])
+        expect(recipe.steps).to_equal(
+            [
+                "Place stuff in the pan",
+                "Place other things in the large bowl",
+            ]
+        )
+
+    def test_timer_extraction(self) -> None:
+        recipe = Recipe.parse(
+            cleandoc(
+                """
+            Cook in oven for ~quiche{30%minutes}
+
+            Let cool for ~{1%hour}
+        """
+            )
+        )
+        expect(recipe.metadata).to_equal({})
+        expect(recipe.cookware).to_equal([])
+        expect(recipe.ingredients).to_equal([])
+        expect(recipe.timers).to_equal(
+            [
+                Timer("quiche", Quantity(30, "minutes")),
+                Timer("", Quantity(1, "hour")),
+            ]
+        )
+        expect(recipe.steps).to_equal(
+            [
+                "Cook in oven for 30 minutes",
+                "Let cool for 1 hour",
             ]
         )
 
